@@ -8,6 +8,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib.auth.decorators import user_passes_test
 
 # Create your views here.
 
@@ -44,3 +45,27 @@ def register_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form})
+
+
+def admin_check(user):
+    return user.userprofile.role == 'Admin'
+
+@user_passes_test(admin_check)
+def admin_view(request):
+    return render(request, 'admin_view.html')
+
+
+def librarian_check(user):
+    return user.userprofile.role == 'Librarian'
+
+@user_passes_test(librarian_check)
+def librarian_view(request):
+    return render(request, 'librarian_view.html')
+
+
+def member_check(user):
+    return user.userprofile.role == 'Member'
+
+@user_passes_test(member_check)
+def member_view(request):
+    return render(request, 'member_view.html')
