@@ -1,6 +1,8 @@
 from .models import Book
 from django.views.generic.detail import DetailView
 from .models import Library
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LogoutView
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import UserCreationForm
@@ -23,21 +25,14 @@ class LibraryDetailView(DetailView):
 
 
 # Login View
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('home')  # Redirect to the home page after login
-    else:
-        form = AuthenticationForm()
-    return render(request, 'relationship_app/login.html', {'form': form})
+class CustomLoginView(LoginView):
+    template_name = 'relationship_app/login.html'  # Specify your template here
+
 
 # Logout View
-def logout_view(request):
-    logout(request)
-    return render(request, 'relationship_app/logout.html')
+class CustomLogoutView(LogoutView):
+    template_name = 'relationship_app/logout.html'  # Specify your template here
+
 
 # Registration View
 def register_view(request):
