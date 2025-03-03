@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 # Enforce HTTPS Redirect
 SECURE_SSL_REDIRECT = True  # Redirect all HTTP traffic to HTTPS
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Security settings
