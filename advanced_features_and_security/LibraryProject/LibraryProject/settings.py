@@ -23,14 +23,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e*o262chv+u^bewjmw+198q1+_%u3hgent(vhj=n&!hg8wka39'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
+
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True  # Prevents XSS attacks
+X_FRAME_OPTIONS = 'DENY'  # Prevents clickjacking
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents MIME type sniffing
+CSRF_COOKIE_SECURE = True  # Ensures CSRF cookie is sent only over HTTPS
+SESSION_COOKIE_SECURE = True  # Ensures session cookies are sent only over HTTPS
+SECURE_HSTS_SECONDS = 31536000  # Enforces HTTPS with a 1-year expiration
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'csp', # Content Security Policy Middleware
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,6 +54,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'csp.middleware.CSPMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
