@@ -1,6 +1,7 @@
 from django.db import models
 # from django.contrib.auth.models import User
 from django.conf import settings
+
 # Create your models here.
 
 class Author(models.Model):
@@ -38,8 +39,7 @@ class Librarian(models.Model):
         return self.name
     
 # models.py
-from django.db import models
-from django.contrib.auth.models import User
+
 
 class UserProfile(models.Model):
     ROLE_CHOICES = [
