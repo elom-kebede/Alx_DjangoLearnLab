@@ -27,6 +27,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = []
 
+# Enforce HTTPS Redirect
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP traffic to HTTPS
+
+
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True  # Prevents XSS attacks
 X_FRAME_OPTIONS = 'DENY'  # Prevents clickjacking
