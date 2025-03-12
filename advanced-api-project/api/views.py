@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions,serializers
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from datetime import datetime
 from .serializers import BookSerializer
 from .models import Book
@@ -10,7 +11,7 @@ class BookListView(generics.ListAPIView):
     # Retrieves all books. Available to both authenticated and unauthenticated users.
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]    # Read access for everyone
+    permission_classes = [IsAuthenticatedOrReadOnly]    # Read access for everyone
 
 class BookDetailView(generics.RetrieveAPIView):
 
@@ -18,7 +19,7 @@ class BookDetailView(generics.RetrieveAPIView):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class BookCreateView(generics.CreateAPIView):
     
@@ -26,7 +27,7 @@ class BookCreateView(generics.CreateAPIView):
     
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can create books
+    permission_classes = [IsAuthenticated]  # Only authenticated users can create books
 
 
     def perform_create(self, serializer):
@@ -40,7 +41,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can update books
+    permission_classes = [IsAuthenticated]  # Only authenticated users can update books
 
     def perform_update(self, serializer):
         if serializer.validated_data['publication_year'] > datetime.now().year:
@@ -53,4 +54,4 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can delete books
+    permission_classes = [IsAuthenticated]  # Only authenticated users can delete books
