@@ -3,7 +3,8 @@ from .models import Book, Author
 from datetime import datetime
 
 # writing the book serializer
-class BookSerializers(serializers.ModelSerializer):
+
+class BookSerializer(serializers.ModelSerializer):
 
     def validate_publication_year(self, value): # to check the year not to be the future
         current_year = datetime.now().year
@@ -17,13 +18,13 @@ class BookSerializers(serializers.ModelSerializer):
 
 
 # serializer for the author    
-class AuthorSerializers(serializers.ModelSerializer):
+class AuthorSerializer(serializers.ModelSerializer):
 
-    books = BookSerializers(many = True , ready_only=True) #nested serialization
+    books = BookSerializer(many = True , ready_only=True) #nested serialization
 
     class meta:
         model = Author
-        fields = '[name , books]'
+        fields = ['name' , 'books']
 
 
 
