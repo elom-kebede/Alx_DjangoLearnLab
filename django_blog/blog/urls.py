@@ -8,7 +8,7 @@ from .views import (
     PostUpdateView,
     PostDeleteView,
     search,
-    view_posts_by_tag,
+    PostByTagListView,
     CommentCreateView, CommentUpdateView, CommentDeleteView
 
     
@@ -32,7 +32,7 @@ urlpatterns = [
     path("comment/<int:pk>/delete/", CommentDeleteView.as_view(), name="delete-comment"),
 
     path('search/', search, name='search'),
-    path('tags/<str:tag_name>/', view_posts_by_tag, name='posts_by_tag'),
+    path('tags/<slug:tag_slug>/', PostByTagListView.as_view(), name='posts-by-tag'),  # Filtering by tag
 
    
 
