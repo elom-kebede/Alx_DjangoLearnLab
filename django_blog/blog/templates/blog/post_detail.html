@@ -12,29 +12,34 @@
         <a href="{% url 'post-delete' post.pk %}">Delete</a>
     {% endif %}
 
+    <h3>Tags:</h3>
+    {% for tag in post.tags.all %}
+      <a href="{% url 'posts_by_tag' tag.name %}">{{ tag.name }}</a>
+    {% endfor %}
+
     <h2>Comments</h2>
-{% for comment in post.comments.all %}
-  <p>{{ comment.author }}: {{ comment.content }}</p>
-  {% if comment.author == request.user %}
+  {% for comment in post.comments.all %}
+    <p>{{ comment.author }}: {{ comment.content }}</p>
+    {% if comment.author == request.user %}
 
      
-    <a href="{% url 'edit-comment' comment.id %}">Edit</a> |
-    <a href="{% url 'delete-comment' comment.id %}">Delete</a>
+      <a href="{% url 'edit-comment' comment.id %}">Edit</a> |
+      <a href="{% url 'delete-comment' comment.id %}">Delete</a>
+    {% endif %}
+  {% endfor %}
+
+  {% if user.is_authenticated %}
+   {% if post %}
+    <form method="POST" action="{% url 'add-comment' post.id %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Post Comment</button>
+    </form>
+   {% else %}
+     <p>Error: Post ID not found.</p>
+   {% endif %}
+
+  {% else %}
+    <p><a href="{% url 'login' %}">Log in</a> to post a comment.</p>
   {% endif %}
-{% endfor %}
-
-{% if user.is_authenticated %}
- {% if post %}
-  <form method="POST" action="{% url 'add-comment' post.id %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Post Comment</button>
-  </form>
- {% else %}
-   <p>Error: Post ID not found.</p>
- {% endif %}
-
-{% else %}
-  <p><a href="{% url 'login' %}">Log in</a> to post a comment.</p>
-{% endif %}
 {% endblock %}
