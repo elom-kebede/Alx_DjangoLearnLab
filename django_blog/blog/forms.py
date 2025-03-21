@@ -17,7 +17,11 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ['title', 'content', 'tags']
 
-    tags = forms.CharField(widget=TagWidget, required=False)
+        widgets = {
+            'tags': TagWidget(),  # Add TagWidget for better tag handling
+        }
+
+
 
 
 
