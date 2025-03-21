@@ -74,7 +74,10 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == post.author
     
 
+
 class CommentCreateView(LoginRequiredMixin, FormView):
+
+
     template_name = "blog/add_comment.html"
     form_class = CommentForm
 
@@ -86,7 +89,10 @@ class CommentCreateView(LoginRequiredMixin, FormView):
         comment.save()
         return redirect("post-detail", pk=post.id)
 
+
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
+
+
     model = Comment
     form_class = CommentForm
     template_name = "blog/edit_comment.html"
@@ -97,7 +103,9 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy("post_detail", kwargs={"pk": self.object.post.id})
 
+
 class CommentDeleteView(LoginRequiredMixin, DeleteView):
+
     model = Comment
     template_name = "blog/post_detail.html"
 
