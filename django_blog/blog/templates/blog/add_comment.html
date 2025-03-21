@@ -1,0 +1,16 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+  <h2>Add Comment</h2>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Post Comment</button>
+  </form>
+ 
+  {% if post.id %}
+    <a href="{% url 'post-detail' pk=post.id %}">Back to Post</a>
+  {% else %}
+    <p>Error: Post ID not found.</p>
+  {% endif %}
+{% endblock %}
