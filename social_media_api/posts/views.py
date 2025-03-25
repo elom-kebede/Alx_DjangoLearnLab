@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.contenttypes.models import ContentType
-
+from notifications.models import Notification
 from django.contrib.auth import get_user_model
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
@@ -63,13 +63,23 @@ class LikePostView(APIView):
 
     def post(self, request, pk, format=None):
         # Fetch the post object using get_object_or_404
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
         
         # Check if the user already liked the post
         like, created = Like.objects.get_or_create(user=request.user, post=post)
+
+        ["generics.get_object_or_404(Post, pk=pk)", "Notification.objects.create"]
+        
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
         
         if created:
-            # Successfully liked the post
+            # Create a notification for the post owner when the post is liked
+            Notification.objects.create(
+                recipient=post.user,  # Post owner is the recipient
+                actor=request.user,  # The user who liked the post
+                verb="liked your post",  # Action description
+                target=post,  # Target is the post
+            )
             return Response({'message': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
         else:
             # The user has already liked the post
@@ -81,12 +91,21 @@ class UnlikePostView(APIView):
 
     def post(self, request, pk, format=None):
         # Fetch the post object using get_object_or_404
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
         
         try:
             # Attempt to get the Like object and delete it
             like = Like.objects.get(user=request.user, post=post)
             like.delete()
+
+            # Create a notification for the post owner when the post is unliked
+            Notification.objects.create(
+                recipient=post.user,  # Post owner is the recipient
+                actor=request.user,  # The user who unliked the post
+                verb="unliked your post",  # Action description
+                target=post,  # Target is the post
+            )
+
             return Response({'message': 'Post unliked successfully.'}, status=status.HTTP_200_OK)
         except Like.DoesNotExist:
             # If the Like object doesn't exist, the user has not liked the post yet
