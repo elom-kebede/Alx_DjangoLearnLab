@@ -6,6 +6,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, status, permissions
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 from .models import CustomUser
 from .serializers import RegisterSerializer, UserSerializer
 
@@ -42,6 +44,39 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user  # Return the authenticated user
+    
+
+
+class FollowUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        # Get the user to follow
+        user_to_follow = get_object_or_404(CustomUser, id=user_id)
+
+        # Make sure the user is not following themselves
+        if user_to_follow == request.user:
+            return Response({"detail": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Add the user to the current user's following list
+        request.user.following.add(user_to_follow)
+
+        # Return a success response
+        return Response({"detail": "You are now following this user."}, status=status.HTTP_200_OK)
+
+
+class UnfollowUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        # Get the user to unfollow
+        user_to_unfollow = get_object_or_404(CustomUser, id=user_id)
+
+        # Remove the user from the current user's following list
+        request.user.following.remove(user_to_unfollow)
+
+        # Return a success response
+        return Response({"detail": "You have unfollowed this user."}, status=status.HTTP_200_OK)
 
 
 
