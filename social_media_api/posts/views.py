@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, filters,generics
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
+
 from django.contrib.auth import get_user_model
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
@@ -33,10 +36,19 @@ class CommentViewSet(viewsets.ModelViewSet):
 User = get_user_model()
 
 class FeedView(generics.ListAPIView):
-    serializer_class = PostSerializer
+    
+
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        followed_users = user.following.all()
-        return Post.objects.filter(author__in=followed_users).order_by('-created_at')
+    def get(self, request):
+        
+        following_users = request.user.following.all()
+
+       
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+
+        
+        from .serializers import PostSerializer
+        serialized_posts = PostSerializer(posts, many=True)
+
+        return Response(serialized_posts.data, status=status.HTTP_200_OK)
