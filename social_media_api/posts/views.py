@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.contenttypes.models import ContentType
 
@@ -58,48 +59,35 @@ class FeedView(generics.ListAPIView):
 
 
 class LikePostView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
 
-    def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, pk, format=None):
+        # Fetch the post object using get_object_or_404
+        post = get_object_or_404(Post, pk=pk)
+        
+        # Check if the user already liked the post
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        
+        if created:
+            # Successfully liked the post
+            return Response({'message': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
+        else:
+            # The user has already liked the post
+            return Response({'message': 'You have already liked this post.'}, status=status.HTTP_200_OK)
 
-        # Check if the user has already liked the post
-        if Like.objects.filter(user=request.user, post=post).exists():
-            return Response({"detail": "You have already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create the like
-        like = Like.objects.create(user=request.user, post=post)
-
-        # Create a notification for the post owner
-        notification = Notification.objects.create(
-            recipient=post.author,
-            actor=request.user,
-            verb="liked your post",
-            target_ct=ContentType.objects.get_for_model(Post),
-            target_id=post.id
-        )
-
-        return Response({"detail": "Post liked."}, status=status.HTTP_201_CREATED)
-    
 
 class UnlikePostView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
 
-    def post(self, request, pk):
+    def post(self, request, pk, format=None):
+        # Fetch the post object using get_object_or_404
+        post = get_object_or_404(Post, pk=pk)
+        
         try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        # Check if the user has liked the post
-        like = Like.objects.filter(user=request.user, post=post).first()
-        if not like:
-            return Response({"detail": "You have not liked this post."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Delete the like
-        like.delete()
-
-        return Response({"detail": "Post unliked."}, status=status.HTTP_204_NO_CONTENT)
+            # Attempt to get the Like object and delete it
+            like = Like.objects.get(user=request.user, post=post)
+            like.delete()
+            return Response({'message': 'Post unliked successfully.'}, status=status.HTTP_200_OK)
+        except Like.DoesNotExist:
+            # If the Like object doesn't exist, the user has not liked the post yet
+            return Response({'message': 'You have not liked this post yet.'}, status=status.HTTP_400_BAD_REQUEST)
