@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from .models import CustomUser
 from .serializers import RegisterSerializer, UserSerializer
 
@@ -33,5 +33,15 @@ class LoginView(APIView):
             update_last_login(None, user)
             return Response({"token": token.key, "user": UserSerializer(user).data})
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    
+class ProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user  # Return the authenticated user
+
 
 
